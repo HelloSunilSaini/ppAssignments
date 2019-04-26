@@ -102,6 +102,7 @@ export default class ChessGame extends Component {
                 console.log(result.messege)
             }
         })
+        setTimeout(() => {this.componentDidMount()},3000);
     }
 
     setGameState = (gameState) => {

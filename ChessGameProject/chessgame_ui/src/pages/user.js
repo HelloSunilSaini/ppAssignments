@@ -241,6 +241,7 @@ export default class User extends Component {
         this.getAllChallenges()
         this.getAllFinishedGames()
         this.getAllPlayable()
+        setTimeout(() => {this.componentDidMount()},10000);
     }
 
     handleChange = (event) => {
