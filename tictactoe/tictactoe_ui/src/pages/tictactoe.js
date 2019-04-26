@@ -102,6 +102,7 @@ export default class TicTacToe extends Component {
                 console.log(result.messege)
             }
         })
+        setTimeout(() => {this.getGame()},5000);
     }
 
     onMove = (x,y) => {
@@ -169,7 +170,7 @@ export default class TicTacToe extends Component {
                             <div style={{fontSize:"20px",margin:"10px",marginTop:"20px",fontWeight:"bold"}}>Game Details</div>
                             <div style={{fontWeight:"bold"}}> Game Id :</div>
                             <div>{this.state.game.game_id}</div>
-                            {this.state.game.winner === null &&
+                            {this.state.game.next_player !== null && this.state.game.next_player !== undefined &&
                                 <div>
                                     <div style={{fontWeight:"bold"}}> Next Player : </div>
                                     <div> {this.state.game.next_player.name} ({this.state.game.next_player.email})</div>

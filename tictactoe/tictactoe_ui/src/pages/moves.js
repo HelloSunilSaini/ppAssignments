@@ -251,16 +251,16 @@ export default class Moves extends Component {
                             <div style={{fontSize:"20px",margin:"5px",marginTop:"20px",fontWeight:"bold"}}>Game Details</div>
                             <div style={{fontWeight:"bold"}}> Game Id :</div>
                             <div>{this.state.game.game_id}</div>
-                            {this.state.game.winner === null &&
-                                <div>
-                                    <div style={{fontWeight:"bold"}}> Next Player : </div>
-                                    <div> {this.state.game.next_player.name} ({this.state.game.next_player.email})</div>
-                                </div>
-                            }
                             {this.state.game.winner !== null &&
                                 <div>
                                     <div style={{fontWeight:"bold"}}> Winner : </div>
                                     <div>{this.state.game.winner.name} ({this.state.game.winner.email})</div>
+                                </div>
+                            }
+                            {this.state.game.winner === null &&
+                                <div>
+                                    <div style={{fontWeight:"bold"}}> Winner : </div>
+                                    <div>None</div>
                                 </div>
                             }
                             <div 

@@ -241,6 +241,8 @@ export default class User extends Component {
         this.getAllChallenges()
         this.getAllFinishedGames()
         this.getAllPlayable()
+
+        setTimeout(() => {this.componentDidMount()},10000);
     }
 
     handleChange = (event) => {
@@ -432,7 +434,9 @@ export default class User extends Component {
                             ({wl.player1.email}), {wl.player2.name}({wl.player2.email}) ]
                         </div>
                         <div>
-                            ---- Winner [ {wl.winner.name}({wl.winner.email}) ]
+                            {wl.winner !== null && wl.winner !== undefined &&
+                            <div>---- Winner [ {wl.winner.name}({wl.winner.email}) ] </div>
+                            }
                         </div>
                     </div>
                     <button
