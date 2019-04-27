@@ -17,9 +17,10 @@ class CarBill(Resource):
             "properties" : {
                 "carId" : {"type" : "string"},
                 "InsuranceId" : {"type" : "string"},
-                "customerId" : {"type" : "string"}
+                "customerId" : {"type" : "string"},
+                "forDays" : {"type" : "integer"}
             },
-            "required":["carId","customerId"]
+            "required":["carId","customerId","forDays"]
         }
 
     def __validate_carbill(self,payload):
@@ -76,7 +77,9 @@ class CarBill(Resource):
             "Insurance" : car_bill_obj["Insurance"],
             "customer" : car_bill_obj["customer"],
             "user" : car_bill_obj["user"],
-            "status" : car_bill_obj["status"]
+            "status" : car_bill_obj["status"],
+            "forDays" : car_bill_obj["forDays"],
+            "grandTotal" : car_bill_obj["grandTotal"]
         }
 
     def __multiple(self,car_bill_objs):
@@ -154,19 +157,37 @@ class CarBill(Resource):
                 "status": False
             }, 401 
 
+
+        forDays = payload["forDays"]
+
         car = self.__single_car(get_car_by_id(payload["carId"]))
-        insurance = payload["InsuranceId"]
-        if insurance :
-            insurance = self.__single_insurance(insurance)
 
         customer = self.__single_customer(get_customer_by_id(payload["customerId"]))
+
+        insuranceId = payload["InsuranceId"]
+        insurance = get_insurance_by_id(insuranceId)
+        if insurance :
+            insurance = self.__single_insurance(insurance)
+            grandTotal = (
+                (int(car["rent_per_day"]) * int(forDays)) + 
+                (
+                    (int(car["rent_per_day"]) * int(forDays) * 
+                    int(insurance["price_percent_on_car_rent"])) / 100
+                )
+            )
+        else:
+            grandTotal = (int(car["rent_per_day"]) * int(forDays))
+
+        
 
         car_bill_obj = {
             "customer" : customer,
             "user" : self.__single_user(user),
             "car" : car,
             "insurance" : insurance,
-            "status" : RENT_STATUS
+            "status" : RENT_STATUS,
+            "forDays" : payload["fordays"]
+            "grandTotal" : grandTotal
         }
 
         update_car_status(car["carId"],ON_RENT_STATUS)
@@ -208,3 +229,8 @@ class CarBill(Resource):
         rent_bill = get_rent_bill_by_id(rentBillId)
         update_car_status(rent_bill["car"]["carId"],AVAILABLE_STATUS)
         update_car_bill_status(rentBillId,RETURNED_STATUS)
+        return {
+            "response" : None,
+            "messege" : "Car Returned successfully",
+            "status" : True
+        },200
