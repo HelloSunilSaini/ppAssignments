@@ -22,7 +22,7 @@ class Car(Resource):
                 "model" : {"type" : "string"},
                 "car_no" : {"type" : "string"},
                 "color" : {"type" : "string"},
-                "ac_status" : {"type" : "string"},
+                "ac_status" : {"type" : "boolean"},
                 "sitting_capacity" : {"type" : "integer"},
                 "mileage" : {"type" : "integer"},
                 "rent_per_day" : {"type" : "integer"}
@@ -48,7 +48,9 @@ class Car(Resource):
             "ac_status" : car_obj["ac_status"],
             "sitting_capacity" : car_obj["sitting_capacity"],
             "mileage" : car_obj["mileage"],
-            "rent_per_day" : car_obj["rent_per_day"],            
+            "rent_per_day" : car_obj["rent_per_day"],   
+            "status" : car_obj["status"],
+            "added_by" : car_obj["added_by"]
         }
     
     def __single_user(self,user_object):

@@ -64,22 +64,8 @@ class User(Resource):
 
     def get(self):
         params = request.args.to_dict()
-        session = get_session(params['token'])
-        current_user_id = str(session['user'])
-        if current_user_id:
-            user = get_user_by_id(current_user_id)
-            if not user:
-                return {
-                    "response" : None,
-                    "messege" : "Invalid Token",
-                    "status": False
-                }, 404  
-            return {
-                "response" : self.__single(user),
-                "messege" : "Ok",
-                "status": True
-            },200
-        else:
+        reqtype = params["type"]
+        if reqtype == "master" :
             master_email = params['master_email']
             master_password = params['master_password']
 
@@ -107,6 +93,23 @@ class User(Resource):
                 "messege" : "Ok",
                 "status": True
             },200
+        else :
+            session = get_session(params['token'])
+            if session:
+                current_user_id = str(session['user'])
+                user = get_user_by_id(current_user_id)
+                if not user:
+                    return {
+                        "response" : None,
+                        "messege" : "Invalid Token",
+                        "status": False
+                    }, 404  
+                return {
+                    "response" : self.__single(user),
+                    "messege" : "Ok",
+                    "status": True
+                },200
+            
 
 
     def post(self):
