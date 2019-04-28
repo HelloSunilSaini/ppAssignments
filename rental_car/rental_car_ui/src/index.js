@@ -6,6 +6,7 @@ import {BrowserRouter, Route, Redirect, Switch} from 'react-router-dom';
 import Login from "./pages/login";
 import User from "./pages/user";
 import Master from "./pages/master";
+import RentCar from "./pages/rentCar";
 
 const CoreApp = () => (
     <BrowserRouter>
@@ -13,6 +14,7 @@ const CoreApp = () => (
             <Route path="/login" component={Login} />
             <Route path="/user" component={User} />
             <Route path="/master" component={Master}/>
+            <Route path="/rentCar" component={RentCar} /> 
 
             <Redirect from="/" to="/login" />
         </Switch>

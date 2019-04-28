@@ -77,12 +77,13 @@ class Insurance(Resource):
                 "messege" : "ok",
                 "status" : True
             },200
-        insurances = get_all_insurance()
-        return {
-            "response" : self.__multiple(insurances),
-            "messege" : "ok",
-            "status" : True
-        },200
+        else:
+            insurances = get_all_insurance()
+            return {
+                "response" : self.__multiple(insurances),
+                "messege" : "ok",
+                "status" : True
+            },200
 
     def post(self):
         params = request.args.to_dict()

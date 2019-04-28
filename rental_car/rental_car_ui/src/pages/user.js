@@ -314,6 +314,17 @@ export default class User extends Component {
 
     rentCar = (car) => {
         console.log(car)
+        this.props.history.push({
+            pathname: '/rentCar',
+            state: { 
+                token : this.state.token,
+                name : this.state.name,
+                email : this.state.email,
+                password : this.state.password,
+                contact : this.state.contact,
+                car : car
+            }
+        })
     }
 
     carTable = [

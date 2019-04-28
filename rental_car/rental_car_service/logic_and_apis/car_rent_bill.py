@@ -4,9 +4,9 @@ from jsonschema import validate
 
 from database_access.user import get_user_by_id
 from database_access.session import get_session
-from database_access.car import get_car_by_id,update_car_status,AVAILABLE_STATUS,ON_RENT_STATUS
+from database_access.car import get_car_by_id,update_car_status,AVAILABLE_STATUS,RENT_STATUS
 from database_access.insurance import get_insurance_by_id
-from database_access.customer import get_customer_by_id
+from database_access.customer import get_customer_by_mail
 from database_access.car_rent_bill import *
 
 class CarBill(Resource):
@@ -17,10 +17,10 @@ class CarBill(Resource):
             "properties" : {
                 "carId" : {"type" : "string"},
                 "InsuranceId" : {"type" : "string"},
-                "customerId" : {"type" : "string"},
+                "customerEmail" : {"type" : "string"},
                 "forDays" : {"type" : "integer"}
             },
-            "required":["carId","customerId","forDays"]
+            "required":["carId","customerEmail","forDays"]
         }
 
     def __validate_carbill(self,payload):
@@ -62,7 +62,7 @@ class CarBill(Resource):
             "contact_no" : cutomer_obj["contact_no"]
         }
 
-     def __single_insurance(self,insurance_object):
+    def __single_insurance(self,insurance_object):
         return {
             "insuranceId" : str(insurance_object["_id"]),
             "insurance_name" : insurance_object.get("insurance_name","no insurance_name"),
@@ -161,9 +161,19 @@ class CarBill(Resource):
         forDays = payload["forDays"]
 
         car = self.__single_car(get_car_by_id(payload["carId"]))
-
-        customer = self.__single_customer(get_customer_by_id(payload["customerId"]))
-
+        if not car :
+            return {
+                "response" : None,
+                "messege" : "car not found",
+                "status" : False
+            },404
+        customer = self.__single_customer(get_customer_by_mail(payload["customerEmail"]))
+        if not customer :
+            return {
+                "response" : None,
+                "messege" : "customer not found by mail",
+                "status" : False
+            },404
         insuranceId = payload["InsuranceId"]
         insurance = get_insurance_by_id(insuranceId)
         if insurance :
@@ -178,19 +188,17 @@ class CarBill(Resource):
         else:
             grandTotal = (int(car["rent_per_day"]) * int(forDays))
 
-        
-
         car_bill_obj = {
             "customer" : customer,
             "user" : self.__single_user(user),
             "car" : car,
             "insurance" : insurance,
-            "status" : RENT_STATUS,
-            "forDays" : payload["fordays"]
+            "status" : ON_RENT_STATUS,
+            "forDays" : payload["forDays"],
             "grandTotal" : grandTotal
         }
 
-        update_car_status(car["carId"],ON_RENT_STATUS)
+        update_car_status(car["carId"],RENT_STATUS)
         create_rent_bill(car_bill_obj)
         return {
             "response" : None,

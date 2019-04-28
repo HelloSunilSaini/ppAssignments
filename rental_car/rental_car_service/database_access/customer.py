@@ -7,7 +7,7 @@ db = client.rental_car
 customercltn = db.customers
 
 def get_customer_by_id(customer_id):
-    return customercltn.find_one({"_id" : ObjectId(user_id)})
+    return customercltn.find_one({"_id" : ObjectId(customer_id)})
 
 def get_all_customers():
     return list(customercltn.find({}))

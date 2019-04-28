@@ -8,6 +8,7 @@ from logic_and_apis.userValidation import UserValidation
 from logic_and_apis.insurance import Insurance
 from logic_and_apis.customer import Customer
 from logic_and_apis.car import Car
+from logic_and_apis.car_rent_bill import CarBill
 
 
 app = Flask(__name__)
@@ -20,6 +21,8 @@ api.add_resource(UserValidation, '/rental_car/uservalidation/')
 api.add_resource(Car, '/rental_car/car/')
 api.add_resource(Customer, '/rental_car/customer/')
 api.add_resource(Insurance, '/rental_car/insurance/')
+api.add_resource(CarBill, '/rental_car/carBill/')
+
 
  
 if __name__ == '__main__':
