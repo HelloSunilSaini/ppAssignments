@@ -43,6 +43,64 @@ export function GetAvailableCars(token) {
         ).catch((error) => { console.log(error) });
 }
 
+export function GetRentedCars(token) {
+    return fetch(DOMAIN + `rental_car/carBill/?token=${token}&&type=STATUS&&status=ON_RENT`, {
+        method: 'GET',
+        headers: {
+            'Access-Control-Allow-Origin' : '*',
+            'Content-Type': 'application/json',
+        },
+    })
+        .then(res => res.json())
+        .then((result) => {
+            return result
+        },
+            (error) => {
+                console.log(error)
+                return error
+            }
+        ).catch((error) => { console.log(error) });
+}
+
+export function GetRentCarHistory(token) {
+    return fetch(DOMAIN + `rental_car/carBill/?token=${token}&&type=STATUS&&status=RETURNED`, {
+        method: 'GET',
+        headers: {
+            'Access-Control-Allow-Origin' : '*',
+            'Content-Type': 'application/json',
+        },
+    })
+        .then(res => res.json())
+        .then((result) => {
+            return result
+        },
+            (error) => {
+                console.log(error)
+                return error
+            }
+        ).catch((error) => { console.log(error) });
+}
+
+export function MarkCarReturn(token,carBillId) {
+    return fetch(DOMAIN + `rental_car/carBill/?token=${token}`, {
+        method: 'PUT',
+        headers: {
+            'Access-Control-Allow-Origin' : '*',
+            'Content-Type': 'application/json',
+        },
+        body : JSON.stringify({rentBillId : carBillId})
+    })
+        .then(res => res.json())
+        .then((result) => {
+            return result
+        },
+            (error) => {
+                console.log(error)
+                return error
+            }
+        ).catch((error) => { console.log(error) });
+}
+
 export function Logout(token) {
     return fetch(DOMAIN + `rental_car/uservalidation/?token=${token}`, {
         method: 'PUT',
@@ -137,6 +195,8 @@ export default class User extends Component {
 
             onRentCars : [],
 
+            carRentHistory : [],
+
             cust_name : "",
             cust_email : "",
             cust_contact : "",
@@ -165,6 +225,8 @@ export default class User extends Component {
     componentDidMount() {
         this.getUserDetails()
         this.getAvailableCars()
+        this.getRentedCars()
+        this.getRentCarHistory()
     }
 
     handleChange = (event) => {
@@ -208,6 +270,27 @@ export default class User extends Component {
         })
     }
 
+    getRentedCars = () => {
+        GetRentedCars(this.state.token).then(result =>{
+            if(result.status){
+                console.log(result.response)
+                this.setState({onRentCars : result.response})
+            }else{
+                console.log(result.messege)
+            }
+        })
+    }
+
+    getRentCarHistory = () => {
+        GetRentCarHistory(this.state.token).then(result =>{
+            if(result.status){
+                console.log(result.response)
+                this.setState({carRentHistory : result.response})
+            }else{
+                console.log(result.messege)
+            }
+        })
+    }
 
     logout = () =>{
         Logout(this.state.token).then(result => {
@@ -305,7 +388,6 @@ export default class User extends Component {
         })
     }
 
-
     gotoLoginPage = () => {
         this.props.history.push({
             pathname: '/login'
@@ -323,6 +405,33 @@ export default class User extends Component {
                 password : this.state.password,
                 contact : this.state.contact,
                 car : car
+            }
+        })
+    }
+
+    carBillDetails = (carbill) => {
+        this.props.history.push({
+            pathname: '/rentCarDetails',
+            state: { 
+                token : this.state.token,
+                name : this.state.name,
+                email : this.state.email,
+                password : this.state.password,
+                contact : this.state.contact,
+                carbill : carbill
+            }
+        })
+    }
+
+    markReturn = (carbill) =>{
+        MarkCarReturn(this.state.token,carbill.rentBillId).then(result =>{
+            if(result.status){
+                alert(result.messege)
+                this.getAvailableCars()
+                this.getRentedCars()
+                this.getRentCarHistory()
+            }else{
+                alert(result.messege)
             }
         })
     }
@@ -400,6 +509,145 @@ export default class User extends Component {
         }
     ];
 
+    carRentTable = [
+        {
+            Header: () => <div style={{ fontSize: 15, fontWeight: "bold" }} > Car </div>,
+            id: "car_name",
+            accessor: d => d.car.carId,
+            Cell: row => (
+                <center>
+                    {row.original.car.car_name} ({row.original.car.car_no}) {row.original.car.rent_per_day} per day
+                </center>
+            ),
+            style: { whiteSpace: 'pre-line', fontSize: 14, overflowWrap: 'break-word' }
+        },
+        {
+            Header: () => <div style={{ fontSize: 15, fontWeight: "bold" }} > Customer </div>,
+            id: "car_no",
+            accessor: d => d.customer.customerId,
+            Cell: row => <center>{row.original.customer.name} ({row.original.customer.email})</center>,
+            style: { whiteSpace: 'pre-line', fontSize: 14, overflowWrap: 'break-word' }
+        },
+        {
+            Header: () => <div style={{ fontSize: 15, fontWeight: "bold" }} > Insurance </div>,
+            id: "mileage",
+            accessor: d => d.insurance.insuranceId,
+            Cell: row => <center>{row.original.insurance.insurance_name} ({row.original.insurance.price_percent_on_car_rent}% on car rent)</center>,
+            style: { whiteSpace: 'pre-line', fontSize: 14, overflowWrap: 'break-word' }
+        }
+        ,
+        {
+            Header: () => <div style={{ fontSize: 15, fontWeight: "bold" }} > For Days | Total Amt </div>,
+            id: "sitting_capacity",
+            accessor: d => d.rentBillId,
+            Cell: row => <center>{row.original.forDays} | {row.original.grandTotal}</center>,
+            style: { whiteSpace: 'pre-line', fontSize: 14, overflowWrap: 'break-word' }
+        }
+        ,
+        {
+            Header: () => <div style={{ fontSize: 15, fontWeight: "bold" }} > Action </div>,
+            id: "userId",
+            accessor: d => d.userId,
+            Cell: row =>(
+                <center>
+                    <button 
+                        className="btn btn-info" 
+                        style={{
+                            paddingTop: "1px",
+                            paddingLeft: "1px",
+                            paddingBottom: "1px",
+                            paddingRight: "1px",
+                            height:"20px",
+                            fontSize:"10px",
+                            fontWeight:"bold"
+                        }}
+                        onClick={() => {this.carBillDetails(row.original)}}
+                    >
+                        Details
+                    </button>
+                    <button 
+                        className="btn btn-success" 
+                        style={{
+                            paddingTop: "1px",
+                            paddingLeft: "1px",
+                            paddingBottom: "1px",
+                            paddingRight: "1px",
+                            height:"20px",
+                            fontSize:"10px",
+                            fontWeight:"bold",
+                            marginLeft:"5px"
+                        }}
+                        onClick={() => {this.markReturn(row.original)}}
+                    >
+                        Mark Returned
+                    </button>
+                </center>
+            ),
+            style: { whiteSpace: 'pre-line', fontSize: 14, overflowWrap: 'Ce' }
+        }
+    ];
+
+    carRentTable1 = [
+        {
+            Header: () => <div style={{ fontSize: 15, fontWeight: "bold" }} > Car </div>,
+            id: "car_name",
+            accessor: d => d.car.carId,
+            Cell: row => (
+                <center>
+                    {row.original.car.car_name} ({row.original.car.car_no}) {row.original.car.rent_per_day} per day
+                </center>
+            ),
+            style: { whiteSpace: 'pre-line', fontSize: 14, overflowWrap: 'break-word' }
+        },
+        {
+            Header: () => <div style={{ fontSize: 15, fontWeight: "bold" }} > Customer </div>,
+            id: "car_no",
+            accessor: d => d.customer.customerId,
+            Cell: row => <center>{row.original.customer.name} ({row.original.customer.email})</center>,
+            style: { whiteSpace: 'pre-line', fontSize: 14, overflowWrap: 'break-word' }
+        },
+        {
+            Header: () => <div style={{ fontSize: 15, fontWeight: "bold" }} > Insurance </div>,
+            id: "mileage",
+            accessor: d => d.insurance.insuranceId,
+            Cell: row => <center>{row.original.insurance.insurance_name} ({row.original.insurance.price_percent_on_car_rent}% on car rent)</center>,
+            style: { whiteSpace: 'pre-line', fontSize: 14, overflowWrap: 'break-word' }
+        }
+        ,
+        {
+            Header: () => <div style={{ fontSize: 15, fontWeight: "bold" }} > For Days | Total Amt </div>,
+            id: "sitting_capacity",
+            accessor: d => d.rentBillId,
+            Cell: row => <center>{row.original.forDays} | {row.original.grandTotal}</center>,
+            style: { whiteSpace: 'pre-line', fontSize: 14, overflowWrap: 'break-word' }
+        }
+        ,
+        {
+            Header: () => <div style={{ fontSize: 15, fontWeight: "bold" }} > Action </div>,
+            id: "userId",
+            accessor: d => d.userId,
+            Cell: row =>(
+                <center>
+                    <button 
+                        className="btn btn-info" 
+                        style={{
+                            paddingTop: "1px",
+                            paddingLeft: "1px",
+                            paddingBottom: "1px",
+                            paddingRight: "1px",
+                            height:"20px",
+                            fontSize:"10px",
+                            fontWeight:"bold"
+                        }}
+                        onClick={() => {this.carBillDetails(row.original)}}
+                    >
+                        Details
+                    </button>
+                </center>
+            ),
+            style: { whiteSpace: 'pre-line', fontSize: 14, overflowWrap: 'Ce' }
+        }
+    ];
 
     render() {
         var inputStyle = {
@@ -467,6 +715,7 @@ export default class User extends Component {
                                 <Tab>Add Car</Tab>
                                 <Tab>Add Customer</Tab>
                                 <Tab>Add Insurance</Tab>
+                                <Tab>Car Rent History</Tab>
                             </TabList>
                         </div>
                         <TabPanel>
@@ -484,11 +733,15 @@ export default class User extends Component {
                         </TabPanel>
                         <TabPanel>
                             <div>
-                                <table>
-                                    <tbody>
-                                        
-                                    </tbody>
-                                </table>
+                                <ReactTable
+                                    defaultFilterMethod={(filter, row) =>
+                                        String(row[filter.id]) === filter.value}
+                                    data={this.state.onRentCars}
+                                    sortable={false}
+                                    columns={this.carRentTable}
+                                    defaultPageSize={5}
+                                    showPagination={true}
+                                />
                             </div>
                         </TabPanel>
                         <TabPanel>
@@ -808,6 +1061,19 @@ export default class User extends Component {
                                 >
                                     Add Insurance
                                 </button>
+                            </div>
+                        </TabPanel>
+                        <TabPanel>
+                            <div>
+                                <ReactTable
+                                    defaultFilterMethod={(filter, row) =>
+                                        String(row[filter.id]) === filter.value}
+                                    data={this.state.carRentHistory}
+                                    sortable={false}
+                                    columns={this.carRentTable1}
+                                    defaultPageSize={5}
+                                    showPagination={true}
+                                />
                             </div>
                         </TabPanel>
                     </Tabs>

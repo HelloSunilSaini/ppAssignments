@@ -10,7 +10,7 @@ ON_RENT_STATUS = "ON_RENT"
 RETURNED_STATUS = "RETURNED"
 
 def get_rent_bill_by_id(rentbill_id):
-    return rentbillcltn.find_one({"_id" : ObjectId(user_id)})
+    return rentbillcltn.find_one({"_id" : ObjectId(rentbill_id)})
 
 def get_all_rent_bills():
     return list(rentbillcltn.find({}))
@@ -30,4 +30,4 @@ def get_bill_by_user_email(user_email):
 
 
 def update_car_bill_status(billId,status):
-    carcltn.update_one({"_id" : ObjectId(billId)}, {"$set" : {"status" : status}})
+    rentbillcltn.update_one({"_id" : ObjectId(billId)}, {"$set" : {"status" : status}})

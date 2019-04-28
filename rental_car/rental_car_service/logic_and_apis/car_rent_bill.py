@@ -74,8 +74,9 @@ class CarBill(Resource):
     def __single(self,car_bill_obj):
         return {
             "rentBillId" :str(car_bill_obj["_id"]),
-            "Insurance" : car_bill_obj["Insurance"],
+            "insurance" : car_bill_obj["insurance"],
             "customer" : car_bill_obj["customer"],
+            "car" : car_bill_obj["car"],
             "user" : car_bill_obj["user"],
             "status" : car_bill_obj["status"],
             "forDays" : car_bill_obj["forDays"],
