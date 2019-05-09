@@ -276,7 +276,7 @@ export default class RentCarDetails extends Component {
                                         paddingBottom: "1px",
                                         paddingRight: "5px",
                                     }}
-                                    onClick={this.rentCar}
+                                    onClick={this.markReturn}
                                 >
                                     Mark Returned
                                 </button>
