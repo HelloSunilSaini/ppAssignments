@@ -1,4 +1,4 @@
-# Online two Player Chess Game
+# Car rental project
 
 ## in this there are two directorirs named
 
